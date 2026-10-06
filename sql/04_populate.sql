@@ -515,61 +515,61 @@ INSERT INTO revisao (codigo, data, horario, descricao, cpf_tecnico, codigo_brinq
 -- Custo = valor de repor a peça NAQUELA revisão (0 = saiu do estoque, sem compra);
 -- a mesma peça e quantidade aparecem com custos diferentes em revisões diferentes.
 -- ---------------------------------------------------------------------
-INSERT INTO usa (codigo_revisao, codigo_peca, quantidade, custo)
+INSERT INTO usa (codigo_revisao, codigo_peca, quantidade_de_pecas, custo)
     VALUES (1, 7, 4, 14576.74);
-INSERT INTO usa (codigo_revisao, codigo_peca, quantidade, custo)
+INSERT INTO usa (codigo_revisao, codigo_peca, quantidade_de_pecas, custo)
     VALUES (1, 5, 2, 542.89);
-INSERT INTO usa (codigo_revisao, codigo_peca, quantidade, custo)
+INSERT INTO usa (codigo_revisao, codigo_peca, quantidade_de_pecas, custo)
     VALUES (1, 4, 2, 15037.29);
-INSERT INTO usa (codigo_revisao, codigo_peca, quantidade, custo)
+INSERT INTO usa (codigo_revisao, codigo_peca, quantidade_de_pecas, custo)
     VALUES (2, 5, 2, 386.51);
-INSERT INTO usa (codigo_revisao, codigo_peca, quantidade, custo)
+INSERT INTO usa (codigo_revisao, codigo_peca, quantidade_de_pecas, custo)
     VALUES (4, 9, 6, 1337.79);
-INSERT INTO usa (codigo_revisao, codigo_peca, quantidade, custo)
+INSERT INTO usa (codigo_revisao, codigo_peca, quantidade_de_pecas, custo)
     VALUES (4, 10, 2, 300.74);
-INSERT INTO usa (codigo_revisao, codigo_peca, quantidade, custo)
+INSERT INTO usa (codigo_revisao, codigo_peca, quantidade_de_pecas, custo)
     VALUES (4, 1, 4, 343.99);
-INSERT INTO usa (codigo_revisao, codigo_peca, quantidade, custo)
+INSERT INTO usa (codigo_revisao, codigo_peca, quantidade_de_pecas, custo)
     VALUES (5, 10, 4, 502.49);
-INSERT INTO usa (codigo_revisao, codigo_peca, quantidade, custo)
+INSERT INTO usa (codigo_revisao, codigo_peca, quantidade_de_pecas, custo)
     VALUES (5, 1, 6, 601.28);
-INSERT INTO usa (codigo_revisao, codigo_peca, quantidade, custo)
+INSERT INTO usa (codigo_revisao, codigo_peca, quantidade_de_pecas, custo)
     VALUES (5, 9, 2, 0.00);
-INSERT INTO usa (codigo_revisao, codigo_peca, quantidade, custo)
+INSERT INTO usa (codigo_revisao, codigo_peca, quantidade_de_pecas, custo)
     VALUES (6, 6, 2, 1237.70);
-INSERT INTO usa (codigo_revisao, codigo_peca, quantidade, custo)
+INSERT INTO usa (codigo_revisao, codigo_peca, quantidade_de_pecas, custo)
     VALUES (7, 6, 4, 2074.58);
-INSERT INTO usa (codigo_revisao, codigo_peca, quantidade, custo)
+INSERT INTO usa (codigo_revisao, codigo_peca, quantidade_de_pecas, custo)
     VALUES (7, 5, 1, 201.98);
-INSERT INTO usa (codigo_revisao, codigo_peca, quantidade, custo)
+INSERT INTO usa (codigo_revisao, codigo_peca, quantidade_de_pecas, custo)
     VALUES (9, 2, 4, 505.29);
-INSERT INTO usa (codigo_revisao, codigo_peca, quantidade, custo)
+INSERT INTO usa (codigo_revisao, codigo_peca, quantidade_de_pecas, custo)
     VALUES (9, 9, 2, 355.47);
-INSERT INTO usa (codigo_revisao, codigo_peca, quantidade, custo)
+INSERT INTO usa (codigo_revisao, codigo_peca, quantidade_de_pecas, custo)
     VALUES (9, 1, 2, 256.19);
-INSERT INTO usa (codigo_revisao, codigo_peca, quantidade, custo)
+INSERT INTO usa (codigo_revisao, codigo_peca, quantidade_de_pecas, custo)
     VALUES (10, 10, 2, 373.13);
-INSERT INTO usa (codigo_revisao, codigo_peca, quantidade, custo)
+INSERT INTO usa (codigo_revisao, codigo_peca, quantidade_de_pecas, custo)
     VALUES (10, 7, 4, 19119.52);
-INSERT INTO usa (codigo_revisao, codigo_peca, quantidade, custo)
+INSERT INTO usa (codigo_revisao, codigo_peca, quantidade_de_pecas, custo)
     VALUES (10, 4, 2, 16564.16);
-INSERT INTO usa (codigo_revisao, codigo_peca, quantidade, custo)
+INSERT INTO usa (codigo_revisao, codigo_peca, quantidade_de_pecas, custo)
     VALUES (11, 5, 4, 790.96);
-INSERT INTO usa (codigo_revisao, codigo_peca, quantidade, custo)
+INSERT INTO usa (codigo_revisao, codigo_peca, quantidade_de_pecas, custo)
     VALUES (11, 4, 2, 18045.02);
-INSERT INTO usa (codigo_revisao, codigo_peca, quantidade, custo)
+INSERT INTO usa (codigo_revisao, codigo_peca, quantidade_de_pecas, custo)
     VALUES (12, 5, 1, 288.47);
-INSERT INTO usa (codigo_revisao, codigo_peca, quantidade, custo)
+INSERT INTO usa (codigo_revisao, codigo_peca, quantidade_de_pecas, custo)
     VALUES (13, 5, 6, 0.00);
-INSERT INTO usa (codigo_revisao, codigo_peca, quantidade, custo)
+INSERT INTO usa (codigo_revisao, codigo_peca, quantidade_de_pecas, custo)
     VALUES (13, 6, 2, 1228.60);
-INSERT INTO usa (codigo_revisao, codigo_peca, quantidade, custo)
+INSERT INTO usa (codigo_revisao, codigo_peca, quantidade_de_pecas, custo)
     VALUES (13, 8, 2, 5924.50);
-INSERT INTO usa (codigo_revisao, codigo_peca, quantidade, custo)
+INSERT INTO usa (codigo_revisao, codigo_peca, quantidade_de_pecas, custo)
     VALUES (15, 9, 6, 1209.50);
-INSERT INTO usa (codigo_revisao, codigo_peca, quantidade, custo)
+INSERT INTO usa (codigo_revisao, codigo_peca, quantidade_de_pecas, custo)
     VALUES (15, 3, 4, 2862.02);
-INSERT INTO usa (codigo_revisao, codigo_peca, quantidade, custo)
+INSERT INTO usa (codigo_revisao, codigo_peca, quantidade_de_pecas, custo)
     VALUES (16, 6, 4, 0.00);
 
 -- ---------------------------------------------------------------------
@@ -723,43 +723,43 @@ INSERT INTO trabalha_em (cpf_funcionario, nome_area, data_inicio, data_fim)
 -- ---------------------------------------------------------------------
 -- RESERVA (19) - quantidade nunca excede os ingressos do cliente naquele dia
 -- ---------------------------------------------------------------------
-INSERT INTO reserva (cpf_cliente, codigo_espetaculo, numero_sessao, data_sessao, quantidade)
+INSERT INTO reserva (cpf_cliente, codigo_espetaculo, numero_sessao, data_sessao, quantidade_de_reservas)
     VALUES ('62279786710', 11, 2, TO_DATE('2026-09-05', 'YYYY-MM-DD'), 1);
-INSERT INTO reserva (cpf_cliente, codigo_espetaculo, numero_sessao, data_sessao, quantidade)
+INSERT INTO reserva (cpf_cliente, codigo_espetaculo, numero_sessao, data_sessao, quantidade_de_reservas)
     VALUES ('13393065815', 11, 1, TO_DATE('2026-09-05', 'YYYY-MM-DD'), 2);
-INSERT INTO reserva (cpf_cliente, codigo_espetaculo, numero_sessao, data_sessao, quantidade)
+INSERT INTO reserva (cpf_cliente, codigo_espetaculo, numero_sessao, data_sessao, quantidade_de_reservas)
     VALUES ('94571710550', 11, 2, TO_DATE('2026-09-05', 'YYYY-MM-DD'), 1);
-INSERT INTO reserva (cpf_cliente, codigo_espetaculo, numero_sessao, data_sessao, quantidade)
+INSERT INTO reserva (cpf_cliente, codigo_espetaculo, numero_sessao, data_sessao, quantidade_de_reservas)
     VALUES ('28028765467', 9, 1, TO_DATE('2026-09-06', 'YYYY-MM-DD'), 1);
-INSERT INTO reserva (cpf_cliente, codigo_espetaculo, numero_sessao, data_sessao, quantidade)
+INSERT INTO reserva (cpf_cliente, codigo_espetaculo, numero_sessao, data_sessao, quantidade_de_reservas)
     VALUES ('50154817139', 13, 1, TO_DATE('2026-09-06', 'YYYY-MM-DD'), 1);
-INSERT INTO reserva (cpf_cliente, codigo_espetaculo, numero_sessao, data_sessao, quantidade)
+INSERT INTO reserva (cpf_cliente, codigo_espetaculo, numero_sessao, data_sessao, quantidade_de_reservas)
     VALUES ('06537026555', 13, 1, TO_DATE('2026-09-06', 'YYYY-MM-DD'), 1);
-INSERT INTO reserva (cpf_cliente, codigo_espetaculo, numero_sessao, data_sessao, quantidade)
+INSERT INTO reserva (cpf_cliente, codigo_espetaculo, numero_sessao, data_sessao, quantidade_de_reservas)
     VALUES ('97565733334', 9, 2, TO_DATE('2026-09-12', 'YYYY-MM-DD'), 2);
-INSERT INTO reserva (cpf_cliente, codigo_espetaculo, numero_sessao, data_sessao, quantidade)
+INSERT INTO reserva (cpf_cliente, codigo_espetaculo, numero_sessao, data_sessao, quantidade_de_reservas)
     VALUES ('13393065815', 11, 1, TO_DATE('2026-09-12', 'YYYY-MM-DD'), 2);
-INSERT INTO reserva (cpf_cliente, codigo_espetaculo, numero_sessao, data_sessao, quantidade)
+INSERT INTO reserva (cpf_cliente, codigo_espetaculo, numero_sessao, data_sessao, quantidade_de_reservas)
     VALUES ('37413521016', 9, 1, TO_DATE('2026-09-12', 'YYYY-MM-DD'), 2);
-INSERT INTO reserva (cpf_cliente, codigo_espetaculo, numero_sessao, data_sessao, quantidade)
+INSERT INTO reserva (cpf_cliente, codigo_espetaculo, numero_sessao, data_sessao, quantidade_de_reservas)
     VALUES ('81816089419', 12, 1, TO_DATE('2026-09-13', 'YYYY-MM-DD'), 1);
-INSERT INTO reserva (cpf_cliente, codigo_espetaculo, numero_sessao, data_sessao, quantidade)
+INSERT INTO reserva (cpf_cliente, codigo_espetaculo, numero_sessao, data_sessao, quantidade_de_reservas)
     VALUES ('47202606674', 12, 1, TO_DATE('2026-09-13', 'YYYY-MM-DD'), 1);
-INSERT INTO reserva (cpf_cliente, codigo_espetaculo, numero_sessao, data_sessao, quantidade)
+INSERT INTO reserva (cpf_cliente, codigo_espetaculo, numero_sessao, data_sessao, quantidade_de_reservas)
     VALUES ('70257605878', 11, 1, TO_DATE('2026-09-19', 'YYYY-MM-DD'), 1);
-INSERT INTO reserva (cpf_cliente, codigo_espetaculo, numero_sessao, data_sessao, quantidade)
+INSERT INTO reserva (cpf_cliente, codigo_espetaculo, numero_sessao, data_sessao, quantidade_de_reservas)
     VALUES ('62279786710', 11, 1, TO_DATE('2026-09-19', 'YYYY-MM-DD'), 2);
-INSERT INTO reserva (cpf_cliente, codigo_espetaculo, numero_sessao, data_sessao, quantidade)
+INSERT INTO reserva (cpf_cliente, codigo_espetaculo, numero_sessao, data_sessao, quantidade_de_reservas)
     VALUES ('37413521016', 11, 1, TO_DATE('2026-09-19', 'YYYY-MM-DD'), 2);
-INSERT INTO reserva (cpf_cliente, codigo_espetaculo, numero_sessao, data_sessao, quantidade)
+INSERT INTO reserva (cpf_cliente, codigo_espetaculo, numero_sessao, data_sessao, quantidade_de_reservas)
     VALUES ('94571710550', 11, 1, TO_DATE('2026-09-19', 'YYYY-MM-DD'), 1);
-INSERT INTO reserva (cpf_cliente, codigo_espetaculo, numero_sessao, data_sessao, quantidade)
+INSERT INTO reserva (cpf_cliente, codigo_espetaculo, numero_sessao, data_sessao, quantidade_de_reservas)
     VALUES ('28911860107', 12, 1, TO_DATE('2026-09-20', 'YYYY-MM-DD'), 1);
-INSERT INTO reserva (cpf_cliente, codigo_espetaculo, numero_sessao, data_sessao, quantidade)
+INSERT INTO reserva (cpf_cliente, codigo_espetaculo, numero_sessao, data_sessao, quantidade_de_reservas)
     VALUES ('28028765467', 12, 1, TO_DATE('2026-09-20', 'YYYY-MM-DD'), 1);
-INSERT INTO reserva (cpf_cliente, codigo_espetaculo, numero_sessao, data_sessao, quantidade)
+INSERT INTO reserva (cpf_cliente, codigo_espetaculo, numero_sessao, data_sessao, quantidade_de_reservas)
     VALUES ('47202606674', 12, 1, TO_DATE('2026-09-20', 'YYYY-MM-DD'), 2);
-INSERT INTO reserva (cpf_cliente, codigo_espetaculo, numero_sessao, data_sessao, quantidade)
+INSERT INTO reserva (cpf_cliente, codigo_espetaculo, numero_sessao, data_sessao, quantidade_de_reservas)
     VALUES ('06537026555', 12, 1, TO_DATE('2026-09-20', 'YYYY-MM-DD'), 1);
 
 -- ---------------------------------------------------------------------

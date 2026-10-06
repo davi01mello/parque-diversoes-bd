@@ -235,12 +235,12 @@ CREATE TABLE trabalha_em (
 CREATE TABLE usa (
     codigo_revisao  NUMBER(6)     NOT NULL,
     codigo_peca     NUMBER(6)     NOT NULL,
-    quantidade      NUMBER(4)     NOT NULL,
+    quantidade_de_pecas NUMBER(4) NOT NULL,
     custo           NUMBER(10,2)  NOT NULL,   -- custo de repor a peça NAQUELA revisão (0 = saiu do estoque)
     CONSTRAINT pk_usa            PRIMARY KEY (codigo_revisao, codigo_peca),
     CONSTRAINT fk_usa_revisao    FOREIGN KEY (codigo_revisao) REFERENCES revisao (codigo),
     CONSTRAINT fk_usa_peca       FOREIGN KEY (codigo_peca) REFERENCES peca (codigo),
-    CONSTRAINT ck_usa_quantidade CHECK (quantidade > 0),
+    CONSTRAINT ck_usa_quantidade CHECK (quantidade_de_pecas > 0),
     CONSTRAINT ck_usa_custo      CHECK (custo >= 0)
 );
 
@@ -249,12 +249,12 @@ CREATE TABLE reserva (
     codigo_espetaculo  NUMBER(6)     NOT NULL,
     numero_sessao      NUMBER(2)     NOT NULL,
     data_sessao        DATE          NOT NULL,
-    quantidade         NUMBER(2)     NOT NULL,
+    quantidade_de_reservas NUMBER(2) NOT NULL,
     CONSTRAINT pk_reserva             PRIMARY KEY (cpf_cliente, codigo_espetaculo, numero_sessao, data_sessao),
     CONSTRAINT fk_reserva_cliente     FOREIGN KEY (cpf_cliente) REFERENCES cliente (cpf),
     CONSTRAINT fk_reserva_sessao      FOREIGN KEY (codigo_espetaculo, numero_sessao, data_sessao)
                                       REFERENCES sessao (codigo_espetaculo, numero, data),
-    CONSTRAINT ck_reserva_quantidade  CHECK (quantidade > 0)
+    CONSTRAINT ck_reserva_quantidade  CHECK (quantidade_de_reservas > 0)
 );
 
 CREATE TABLE se_apresenta_em (

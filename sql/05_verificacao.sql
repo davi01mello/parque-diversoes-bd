@@ -51,7 +51,7 @@ ORDER BY custo_total DESC;
 SELECT a.nome AS espetaculo, s.data, s.numero, s.horario,
        e.capacidade_plateia,
        e.capacidade_plateia - s.vagas_disponiveis AS ocupadas,
-       COALESCE(SUM(r.quantidade), 0) AS reservadas
+       COALESCE(SUM(r.quantidade_de_reservas), 0) AS reservadas
 FROM sessao s
 JOIN espetaculo e ON e.codigo = s.codigo_espetaculo
 JOIN atracao a ON a.codigo = e.codigo
