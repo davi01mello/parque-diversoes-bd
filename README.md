@@ -13,37 +13,48 @@ Scripts Oracle SQL gerados a partir do **Esquema Relacional Normalizado** da AV2
 bd/
 ├── README.md
 └── sql/
-    ├── 00_drop.sql                 remove tabelas e sequences (para reexecutar do zero)
-    ├── 01_sequences.sql            CREATE SEQUENCE (4)
-    ├── 02_tables.sql               CREATE TABLE (23), com CONSTRAINT e CHECK
-    ├── 03_alter_constraints.sql    FK circular entre OPERADOR e BRINQUEDO
-    ├── 04_populate.sql             INSERT INTO (povoamento)
-    └── 05_verificacao.sql          consultas de conferência (opcional)
+    ├── 01_ddl.sql            DROP (tabelas e sequences) + CREATE SEQUENCE + CREATE TABLE + ALTER da FK circular
+    ├── 02_povoamento.sql     INSERT INTO (povoamento)
+    └── 03_verificacao.sql    consultas de conferência (opcional)
 ```
 
 ## Como executar (Oracle Live SQL)
 
 Executar **nesta ordem**, cada arquivo como um script completo:
 
-1. `00_drop.sql` — só se for reexecutar. Na primeira vez, os erros ORA-00942 / ORA-02289 são esperados.
-2. `01_sequences.sql`
-3. `02_tables.sql`
-4. `03_alter_constraints.sql`
-5. `04_populate.sql`
-6. `05_verificacao.sql` — opcional
-
-O `04_populate.sql` depende das sequences começarem em 1 (os códigos de atração, peça e revisão usados
-nas chaves estrangeiras são os gerados em sequência). Por isso o `00_drop.sql` antes de reexecutar.
+1. `01_ddl.sql` — começa com os `DROP`s, então pode ser reexecutado quantas vezes for preciso. Na primeira
+   execução, os erros ORA-00942 (tabela inexistente) e ORA-02289 (sequence inexistente) dos `DROP`s são esperados.
+2. `02_povoamento.sql` — depende das sequences começarem em 1 (os códigos de atração, peça e revisão usados
+   nas chaves estrangeiras são os gerados em sequência). Por isso, sempre rodar o `01_ddl.sql` antes.
+3. `03_verificacao.sql` — opcional.
 
 ## Checklist da entrega
 
 | Exigência | Onde |
 |---|---|
-| `CREATE TABLE` | `02_tables.sql` (23 tabelas) |
-| `INSERT INTO` | `04_populate.sql` |
-| `CONSTRAINT` em `CREATE TABLE` | `02_tables.sql` — toda constraint é nomeada: 23 `PRIMARY KEY`, 27 `FOREIGN KEY`, 2 `UNIQUE` (inclui a FK adicionada em `03`) |
-| `CREATE SEQUENCE` | `01_sequences.sql` — `seq_atracao`, `seq_peca`, `seq_revisao`, `seq_ingresso` |
-| `CHECK` em `CREATE TABLE` | `02_tables.sql` — 31 checks |
+| `CREATE TABLE` | `01_ddl.sql` (23 tabelas) |
+| `INSERT INTO` | `02_povoamento.sql` |
+| `CONSTRAINT` em `CREATE TABLE` | `01_ddl.sql` — toda constraint é nomeada: 23 `PRIMARY KEY`, 27 `FOREIGN KEY`, 2 `UNIQUE` (a FK circular entra no `ALTER TABLE` da parte 4) |
+| `CREATE SEQUENCE` | `01_ddl.sql` — `seq_atracao`, `seq_peca`, `seq_revisao`, `seq_ingresso` |
+| `CHECK` em `CREATE TABLE` | `01_ddl.sql` — 31 checks |
+
+## Boas práticas de DDL aplicadas
+
+**DROP no início.** O `01_ddl.sql` começa removendo todas as tabelas e sequences, para evitar erro de duplicação
+ao reexecutar. Ordem: primeiro as tabelas que ninguém referencia, depois as que têm dependentes, e por fim as
+sequences. `OPERADOR` e `BRINQUEDO` se referenciam mutuamente, e `CASCADE CONSTRAINTS` resolve esse par.
+
+**Menor tipo que comporta o dado, com margem, e tipos nativos.** Datas em `DATE`; CPF, CEP e telefone em
+`VARCHAR2` (preservam zeros à esquerda); valores monetários em `NUMBER(8,2)`; velocidade em `NUMBER(4,1)`;
+quantidades e códigos em `NUMBER` com precisão dimensionada para o domínio.
+
+**Horários.** `INTERVAL DAY(0) TO SECOND(0)` em `sessao.horario`, `revisao.horario` e
+`frequenta.horario_visita`. O tipo `DATE` do Oracle sempre carrega data e hora, e a data já está na coluna
+`data`; o `INTERVAL` guarda só a hora do dia, sem redundância e sem texto. Um `CHECK` garante que não seja negativo.
+
+**Nomes padronizados e descritivos.** Minúsculas, `snake_case`, tabelas no singular, colunas com os mesmos nomes
+do esquema da AV2 (inclusive `usa.quantidade_de_pecas` e `reserva.quantidade_de_reservas`) e constraints no
+padrão `pk_` / `fk_` / `uq_` / `ck_` + tabela + coluna.
 
 ## Decisões de modelagem
 
@@ -53,24 +64,18 @@ nas chaves estrangeiras são os gerados em sequência). Por isso o `00_drop.sql`
 discriminador de entidade fraca.
 
 **FK circular.** `BRINQUEDO.cpf_gerente → OPERADOR` (Gerencia) e `OPERADOR.codigo_brinquedo_opera → BRINQUEDO`
-(Opera) se referenciam mutuamente. `OPERADOR` é criada sem a FK de brinquedo, que entra em
-`03_alter_constraints.sql`. No povoamento, os operadores entram com `codigo_brinquedo_opera` nulo e recebem
+(Opera) se referenciam mutuamente. `OPERADOR` é criada sem a FK de brinquedo, que entra no `ALTER TABLE` da
+parte 4 do `01_ddl.sql`. No povoamento, os operadores entram com `codigo_brinquedo_opera` nulo e recebem
 o brinquedo por `UPDATE` depois que `BRINQUEDO` existe.
 
-**Gerencia e Opera são fatos independentes.** Um gerente pode não operar nenhum brinquedo ou operar o mesmo
-que gerencia (a consulta 2 de `05_verificacao.sql` mostra os dois casos). `uq_brinquedo_gerente` garante que um
-operador gerencia no máximo um brinquedo.
-
-**Horários.** `VARCHAR2(5)` no formato `HH24:MI`, validado por `CHECK` com `REGEXP_LIKE`, porque o tipo `DATE`
-do Oracle sempre carrega data e hora.
+**Gerencia e Opera são fatos independentes.** Um gerente pode não operar nenhum brinquedo, operar o mesmo
+que gerencia ou operar outro (a consulta 2 de `03_verificacao.sql` mostra os três casos).
+`uq_brinquedo_gerente` garante que um operador gerencia no máximo um brinquedo.
 
 **Frequenta.** O brinquedo visitado não é coluna da tabela: obtém-se por junção com `OPERADOR`
 (decisão de 3FN da AV2). A chave primária é `(cpf_cliente, data, horario_visita)`: essa chave inteira determina
 `cpf_operador`, e o operador determina o brinquedo, ou seja, `(cpf_cliente, data, horario_visita) → cpf_operador →
 codigo_brinquedo` (correção da AV2: `cpf_cliente` sozinho não determina o operador).
-
-**Nomes das colunas.** Seguem o esquema da AV2, inclusive `usa.quantidade_de_pecas` e
-`reserva.quantidade_de_reservas`.
 
 **Campos opcionais (nulos).** `operador.codigo_brinquedo_opera` (operador sem brinquedo), `brinquedo.cpf_gerente`
 (brinquedo sem gerente) e `trabalha_em.data_fim` (alocação atual).
@@ -78,7 +83,8 @@ codigo_brinquedo` (correção da AV2: `cpf_cliente` sozinho não determina o ope
 **Principais `CHECK`s.** CPF com 11 dígitos, CEP com 8, e-mail e telefone em formato válido; salário e
 capacidades positivos; funcionário admitido com 18 anos ou mais; categorias de brinquedo
 (Radical/Infantil/Aquático) e de show (Musical/Teatral/Circense); local do ingresso (Digital/Física);
-nível de certificação de 1 a 3; término de evento e de alocação não anterior ao início; ninguém mentora a si mesmo.
+nível de certificação de 1 a 3; horários não negativos; término de evento e de alocação não anterior ao início;
+ninguém mentora a si mesmo.
 
 **Regras do modelo conceitual que o SQL puro não impõe.** Especialização total e disjunta (todo funcionário
 é exatamente um entre técnico/operador/artista; toda atração é exatamente brinquedo ou espetáculo) e
@@ -107,7 +113,10 @@ Dados fictícios, no tema do parque. Os CPFs têm dígito verificador válido, m
 Coerência entre tabelas:
 
 - Todo brinquedo tem ao menos um operador e duas revisões; todo técnico faz ao menos uma revisão.
-- Há gerente que não opera (brinquedo 1), gerentes que também operam (brinquedos 3 e 5) e brinquedos sem gerente.
+- Só os brinquedos de alta capacidade (24 lugares ou mais) têm gerente, e o gerente é da mesma área do brinquedo.
+  Há gerente que não opera (brinquedo 1), gerentes que também operam (brinquedos 3, 7 e 8) e gerente que opera
+  outro brinquedo (brinquedo 4). Os brinquedos 2, 5 e 6 ficam sem gerente.
+- Cada operador trabalha na mesma área do brinquedo que opera.
 - Há revisões de rotina sem peças, peças repostas sem custo (saíram do estoque) e a mesma peça, com a mesma
   quantidade, custando valores diferentes em revisões diferentes.
 - Funcionários com histórico de alocação em várias áreas, sem sobreposição de períodos, sempre com uma única

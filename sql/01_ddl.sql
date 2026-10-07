@@ -1,17 +1,93 @@
 -- =====================================================================
--- 02_tables.sql
+-- 01_ddl.sql
 -- Projeto: Parque de Diversões (AV3 - Criação e Povoamento)
--- Criação das 23 tabelas do Esquema Relacional Normalizado (AV2).
+-- Banco de Dados - CIn/UFPE
 --
--- Convenções:
---   * Toda constraint é nomeada: pk_ / fk_ / uq_ / ck_ + tabela.
---   * Horários são guardados como VARCHAR2(5) no formato 'HH24:MI'
---     (o tipo DATE do Oracle sempre carrega data + hora).
---   * Ordem de criação: quem tem FK vem depois de quem ela referencia.
---   * A FK OPERADOR -> BRINQUEDO fica de fora aqui (dependência circular
---     com BRINQUEDO -> OPERADOR) e é adicionada em 03_alter_constraints.sql.
+-- Script de DDL completo, em 4 partes:
+--   1) DROP de todas as tabelas e sequences (reexecução sem erro de duplicação)
+--   2) CREATE SEQUENCE
+--   3) CREATE TABLE (23 tabelas do Esquema Relacional Normalizado da AV2)
+--   4) ALTER TABLE da FK circular OPERADOR <-> BRINQUEDO
+--
+-- Boas práticas aplicadas:
+--   * DROPs no início, na ordem: tabelas sem dependentes -> tabelas com
+--     dependentes -> sequences.
+--   * Menor tipo de dado que comporta a informação, com margem segura, e
+--     tipos nativos (datas em DATE, horários em INTERVAL; nada de texto).
+--   * Nomes padronizados (minúsculas, snake_case, tabelas no singular) e
+--     constraints nomeadas: pk_ / fk_ / uq_ / ck_ + tabela + coluna.
+--
+-- Na PRIMEIRA execução, os erros ORA-00942 (tabela inexistente) e
+-- ORA-02289 (sequence inexistente) dos DROPs são esperados e inofensivos.
 -- =====================================================================
 
+-- ---------------------------------------------------------------------
+-- 1) DROP: remove tudo para poder reexecutar o script do zero
+-- ---------------------------------------------------------------------
+-- Ordem: primeiro as tabelas que ninguém referencia, depois as que têm
+-- dependentes, e por fim as sequences. OPERADOR e BRINQUEDO se referenciam
+-- mutuamente (FK circular); CASCADE CONSTRAINTS resolve esse par.
+DROP TABLE frequenta               CASCADE CONSTRAINTS;
+DROP TABLE mentora                 CASCADE CONSTRAINTS;
+DROP TABLE se_apresenta_em         CASCADE CONSTRAINTS;
+DROP TABLE reserva                 CASCADE CONSTRAINTS;
+DROP TABLE usa                     CASCADE CONSTRAINTS;
+DROP TABLE trabalha_em             CASCADE CONSTRAINTS;
+DROP TABLE ingresso                CASCADE CONSTRAINTS;
+DROP TABLE revisao                 CASCADE CONSTRAINTS;
+DROP TABLE sessao                  CASCADE CONSTRAINTS;
+DROP TABLE especialidade_artistica CASCADE CONSTRAINTS;
+DROP TABLE telefone_cliente        CASCADE CONSTRAINTS;
+DROP TABLE telefone_funcionario    CASCADE CONSTRAINTS;
+DROP TABLE espetaculo              CASCADE CONSTRAINTS;
+DROP TABLE brinquedo               CASCADE CONSTRAINTS;
+DROP TABLE artista                 CASCADE CONSTRAINTS;
+DROP TABLE operador                CASCADE CONSTRAINTS;
+DROP TABLE tecnico                 CASCADE CONSTRAINTS;
+DROP TABLE atracao                 CASCADE CONSTRAINTS;
+DROP TABLE evento                  CASCADE CONSTRAINTS;
+DROP TABLE peca                    CASCADE CONSTRAINTS;
+DROP TABLE cliente                 CASCADE CONSTRAINTS;
+DROP TABLE funcionario             CASCADE CONSTRAINTS;
+DROP TABLE area                    CASCADE CONSTRAINTS;
+
+DROP SEQUENCE seq_atracao;
+DROP SEQUENCE seq_peca;
+DROP SEQUENCE seq_revisao;
+DROP SEQUENCE seq_ingresso;
+
+-- ---------------------------------------------------------------------
+-- 2) CREATE SEQUENCE: chaves geradas pelo sistema
+-- ---------------------------------------------------------------------
+-- CPF, Nome (Área/Evento) e Número de Sessão NÃO usam sequence: são
+-- identificadores naturais ou discriminador de entidade fraca.
+
+-- Código da atração. Brinquedo e Espetáculo herdam o MESMO valor
+-- (inserir em ATRACAO com NEXTVAL e no subtipo com CURRVAL).
+CREATE SEQUENCE seq_atracao
+    START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+
+-- Código da peça de reposição.
+CREATE SEQUENCE seq_peca
+    START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+
+-- Código da revisão (entidade associativa Técnico x Brinquedo).
+CREATE SEQUENCE seq_revisao
+    START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+
+-- Número do ingresso.
+CREATE SEQUENCE seq_ingresso
+    START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+
+
+-- ---------------------------------------------------------------------
+-- 3) CREATE TABLE
+-- ---------------------------------------------------------------------
+-- Ordem de criação: quem tem FK vem depois de quem ela referencia.
+-- Horários: INTERVAL DAY(0) TO SECOND(0) guarda só a hora do dia (o tipo
+-- DATE sempre carrega data + hora, e a data já está na coluna 'data').
+-- A FK OPERADOR -> BRINQUEDO fica de fora aqui (dependência circular com
+-- BRINQUEDO -> OPERADOR) e é adicionada na parte 4.
 
 -- ---------------------------------------------------------------------
 -- 1) Tabelas sem dependência
@@ -31,12 +107,12 @@ CREATE TABLE funcionario (
     sobrenome        VARCHAR2(60)  NOT NULL,
     data_nascimento  DATE          NOT NULL,
     data_admissao    DATE          NOT NULL,
-    salario          NUMBER(10,2)  NOT NULL,
+    salario          NUMBER(8,2)  NOT NULL,
     CONSTRAINT pk_funcionario        PRIMARY KEY (cpf),
-    CONSTRAINT ck_func_cpf           CHECK (REGEXP_LIKE(cpf, '^[0-9]{11}$')),
-    CONSTRAINT ck_func_salario       CHECK (salario > 0),
+    CONSTRAINT ck_funcionario_cpf           CHECK (REGEXP_LIKE(cpf, '^[0-9]{11}$')),
+    CONSTRAINT ck_funcionario_salario       CHECK (salario > 0),
     -- admitido com pelo menos 18 anos completos (216 meses)
-    CONSTRAINT ck_func_admissao      CHECK (ADD_MONTHS(data_nascimento, 216) <= data_admissao)
+    CONSTRAINT ck_funcionario_admissao      CHECK (ADD_MONTHS(data_nascimento, 216) <= data_admissao)
 );
 
 CREATE TABLE cliente (
@@ -108,7 +184,7 @@ CREATE TABLE operador (
 
 CREATE TABLE artista (
     cpf          VARCHAR2(11)  NOT NULL,
-    cache_padrao NUMBER(10,2)  NOT NULL,
+    cache_padrao NUMBER(8,2)  NOT NULL,
     CONSTRAINT pk_artista              PRIMARY KEY (cpf),
     CONSTRAINT fk_artista_funcionario  FOREIGN KEY (cpf) REFERENCES funcionario (cpf),
     CONSTRAINT ck_artista_cache        CHECK (cache_padrao >= 0)
@@ -122,8 +198,8 @@ CREATE TABLE artista (
 CREATE TABLE brinquedo (
     codigo            NUMBER(6)     NOT NULL,
     restricao_altura  NUMBER(3)     NOT NULL,   -- em cm; 0 = sem restrição
-    velocidade_maxima NUMBER(5,1)   NOT NULL,   -- em km/h
-    categoria         VARCHAR2(10)  NOT NULL,
+    velocidade_maxima NUMBER(4,1)   NOT NULL,   -- em km/h
+    categoria         VARCHAR2(12)  NOT NULL,
     cpf_gerente       VARCHAR2(11),             -- Gerencia (0,1): nulo = sem gerente
     CONSTRAINT pk_brinquedo            PRIMARY KEY (codigo),
     CONSTRAINT fk_brinquedo_atracao    FOREIGN KEY (codigo) REFERENCES atracao (codigo),
@@ -138,7 +214,7 @@ CREATE TABLE brinquedo (
 CREATE TABLE espetaculo (
     codigo             NUMBER(6)     NOT NULL,
     duracao            NUMBER(3)     NOT NULL,   -- em minutos
-    categoria_show     VARCHAR2(10)  NOT NULL,
+    categoria_show     VARCHAR2(12)  NOT NULL,
     capacidade_plateia NUMBER(5)     NOT NULL,
     CONSTRAINT pk_espetaculo            PRIMARY KEY (codigo),
     CONSTRAINT fk_espetaculo_atracao    FOREIGN KEY (codigo) REFERENCES atracao (codigo),
@@ -184,26 +260,26 @@ CREATE TABLE sessao (
     codigo_espetaculo  NUMBER(6)    NOT NULL,
     numero             NUMBER(2)    NOT NULL,
     data               DATE         NOT NULL,
-    horario            VARCHAR2(5)  NOT NULL,
+    horario            INTERVAL DAY(0) TO SECOND(0)  NOT NULL,
     vagas_disponiveis  NUMBER(5)    NOT NULL,
     CONSTRAINT pk_sessao             PRIMARY KEY (codigo_espetaculo, numero, data),
     CONSTRAINT fk_sessao_espetaculo  FOREIGN KEY (codigo_espetaculo) REFERENCES espetaculo (codigo),
     CONSTRAINT ck_sessao_numero      CHECK (numero > 0),
-    CONSTRAINT ck_sessao_horario     CHECK (REGEXP_LIKE(horario, '^([01][0-9]|2[0-3]):[0-5][0-9]$')),
+    CONSTRAINT ck_sessao_horario     CHECK (horario >= INTERVAL '00:00' HOUR TO MINUTE),
     CONSTRAINT ck_sessao_vagas       CHECK (vagas_disponiveis >= 0)
 );
 
 CREATE TABLE revisao (
     codigo            NUMBER(6)      NOT NULL,
     data              DATE           NOT NULL,
-    horario           VARCHAR2(5)    NOT NULL,
+    horario           INTERVAL DAY(0) TO SECOND(0)  NOT NULL,
     descricao         VARCHAR2(200)  NOT NULL,
     cpf_tecnico       VARCHAR2(11)   NOT NULL,
     codigo_brinquedo  NUMBER(6)      NOT NULL,
     CONSTRAINT pk_revisao            PRIMARY KEY (codigo),
     CONSTRAINT fk_revisao_tecnico    FOREIGN KEY (cpf_tecnico) REFERENCES tecnico (cpf),
     CONSTRAINT fk_revisao_brinquedo  FOREIGN KEY (codigo_brinquedo) REFERENCES brinquedo (codigo),
-    CONSTRAINT ck_revisao_horario    CHECK (REGEXP_LIKE(horario, '^([01][0-9]|2[0-3]):[0-5][0-9]$'))
+    CONSTRAINT ck_revisao_horario    CHECK (horario >= INTERVAL '00:00' HOUR TO MINUTE)
 );
 
 CREATE TABLE ingresso (
@@ -236,7 +312,7 @@ CREATE TABLE usa (
     codigo_revisao  NUMBER(6)     NOT NULL,
     codigo_peca     NUMBER(6)     NOT NULL,
     quantidade_de_pecas NUMBER(4) NOT NULL,
-    custo           NUMBER(10,2)  NOT NULL,   -- custo de repor a peça NAQUELA revisão (0 = saiu do estoque)
+    custo           NUMBER(8,2)  NOT NULL,   -- custo de repor a peça NAQUELA revisão (0 = saiu do estoque)
     CONSTRAINT pk_usa            PRIMARY KEY (codigo_revisao, codigo_peca),
     CONSTRAINT fk_usa_revisao    FOREIGN KEY (codigo_revisao) REFERENCES revisao (codigo),
     CONSTRAINT fk_usa_peca       FOREIGN KEY (codigo_peca) REFERENCES peca (codigo),
@@ -278,10 +354,23 @@ CREATE TABLE mentora (
 CREATE TABLE frequenta (
     cpf_cliente     VARCHAR2(11)  NOT NULL,
     data            DATE          NOT NULL,
-    horario_visita  VARCHAR2(5)   NOT NULL,
+    horario_visita  INTERVAL DAY(0) TO SECOND(0)  NOT NULL,
     cpf_operador    VARCHAR2(11)  NOT NULL,   -- o brinquedo é obtido via OPERADOR (ver AV2, 3FN)
     CONSTRAINT pk_frequenta            PRIMARY KEY (cpf_cliente, data, horario_visita),
     CONSTRAINT fk_frequenta_cliente    FOREIGN KEY (cpf_cliente) REFERENCES cliente (cpf),
     CONSTRAINT fk_frequenta_operador   FOREIGN KEY (cpf_operador) REFERENCES operador (cpf),
-    CONSTRAINT ck_frequenta_horario    CHECK (REGEXP_LIKE(horario_visita, '^([01][0-9]|2[0-3]):[0-5][0-9]$'))
+    CONSTRAINT ck_frequenta_horario    CHECK (horario_visita >= INTERVAL '00:00' HOUR TO MINUTE)
 );
+
+
+-- ---------------------------------------------------------------------
+-- 4) ALTER TABLE: FK circular
+-- ---------------------------------------------------------------------
+-- BRINQUEDO.cpf_gerente           -> OPERADOR.cpf     (Gerencia)
+-- OPERADOR.codigo_brinquedo_opera -> BRINQUEDO.codigo (Opera)
+-- Nenhuma das duas tabelas pode nascer com as duas FKs. OPERADOR é criada
+-- sem a FK de brinquedo, que entra aqui, depois que BRINQUEDO existe.
+
+ALTER TABLE operador
+    ADD CONSTRAINT fk_operador_brinquedo
+    FOREIGN KEY (codigo_brinquedo_opera) REFERENCES brinquedo (codigo);

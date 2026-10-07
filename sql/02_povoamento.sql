@@ -1,11 +1,11 @@
 -- =====================================================================
--- 04_populate.sql
+-- 02_povoamento.sql
 -- Projeto: Parque de Diversões (AV3 - Criação e Povoamento)
 --
 -- Povoamento coerente com as regras do minimundo. Dados fictícios:
 -- os CPFs têm dígito verificador válido, mas não pertencem a pessoas reais.
 --
--- PRÉ-REQUISITO: executar 00 (drop), 01, 02 e 03 antes, em banco limpo.
+-- PRÉ-REQUISITO: executar 01_ddl.sql antes (ele já recria tudo do zero).
 -- As sequences começam em 1; os códigos citados nos comentários
 -- (atração 1..13, peça 1..10, revisão 1..16) dependem disso.
 --
@@ -218,8 +218,10 @@ INSERT INTO especialidade_artistica (cpf_artista, especialidade)
 -- ---------------------------------------------------------------------
 -- ATRAÇÃO + subtipo (8 brinquedos e 5 espetáculos)
 -- Cada atração recebe seq_atracao.NEXTVAL; o subtipo reutiliza o MESMO valor via CURRVAL.
--- Gerente: brinquedo 1 -> Ricardo (só administra, não opera), 3 -> Pedro (também opera),
---          5 -> Patrícia (também opera). Os demais ficam sem gerente.
+-- Gerente só nos brinquedos de alta capacidade (>= 24 lugares), na mesma área do brinquedo:
+--   1 -> Ricardo (só administra, não opera), 3 -> Pedro (também opera),
+--   4 -> Fernanda (opera outro brinquedo, o 3), 7 -> Gustavo e 8 -> Juliana (também operam).
+-- Os brinquedos 2, 5 e 6 (capacidade < 24) ficam sem gerente.
 -- ---------------------------------------------------------------------
 -- código 1
 INSERT INTO atracao (codigo, nome, capacidade, nome_area)
@@ -240,12 +242,12 @@ INSERT INTO brinquedo (codigo, restricao_altura, velocidade_maxima, categoria, c
 INSERT INTO atracao (codigo, nome, capacidade, nome_area)
     VALUES (seq_atracao.NEXTVAL, 'Órbita Galáctica', 30, 'Zona Espacial');
 INSERT INTO brinquedo (codigo, restricao_altura, velocidade_maxima, categoria, cpf_gerente)
-    VALUES (seq_atracao.CURRVAL, 120, 60.0, 'Radical', NULL);
+    VALUES (seq_atracao.CURRVAL, 120, 60.0, 'Radical', '94831189057');
 -- código 5
 INSERT INTO atracao (codigo, nome, capacidade, nome_area)
     VALUES (seq_atracao.NEXTVAL, 'Tobogã Tsunami', 16, 'Zona Aquática');
 INSERT INTO brinquedo (codigo, restricao_altura, velocidade_maxima, categoria, cpf_gerente)
-    VALUES (seq_atracao.CURRVAL, 110, 45.0, 'Aquático', '66572706583');
+    VALUES (seq_atracao.CURRVAL, 110, 45.0, 'Aquático', NULL);
 -- código 6
 INSERT INTO atracao (codigo, nome, capacidade, nome_area)
     VALUES (seq_atracao.NEXTVAL, 'Rio Selvagem', 12, 'Zona Aquática');
@@ -255,12 +257,12 @@ INSERT INTO brinquedo (codigo, restricao_altura, velocidade_maxima, categoria, c
 INSERT INTO atracao (codigo, nome, capacidade, nome_area)
     VALUES (seq_atracao.NEXTVAL, 'Carrossel Encantado', 40, 'Zona Infantil');
 INSERT INTO brinquedo (codigo, restricao_altura, velocidade_maxima, categoria, cpf_gerente)
-    VALUES (seq_atracao.CURRVAL, 0, 10.0, 'Infantil', NULL);
+    VALUES (seq_atracao.CURRVAL, 0, 10.0, 'Infantil', '75658024099');
 -- código 8
 INSERT INTO atracao (codigo, nome, capacidade, nome_area)
     VALUES (seq_atracao.NEXTVAL, 'Trenzinho Mágico', 30, 'Zona Infantil');
 INSERT INTO brinquedo (codigo, restricao_altura, velocidade_maxima, categoria, cpf_gerente)
-    VALUES (seq_atracao.CURRVAL, 0, 15.0, 'Infantil', NULL);
+    VALUES (seq_atracao.CURRVAL, 0, 15.0, 'Infantil', '14931820999');
 -- código 9
 INSERT INTO atracao (codigo, nome, capacidade, nome_area)
     VALUES (seq_atracao.NEXTVAL, 'Torneio dos Cavaleiros', 300, 'Zona Medieval');
@@ -422,93 +424,93 @@ INSERT INTO evento (nome, data_inicio, data_termino, descricao)
 -- SESSÃO (18) - entidade fraca de ESPETÁCULO; vagas = plateia - reservas - demais ocupações
 -- ---------------------------------------------------------------------
 INSERT INTO sessao (codigo_espetaculo, numero, data, horario, vagas_disponiveis)
-    VALUES (9, 1, TO_DATE('2026-09-05', 'YYYY-MM-DD'), '11:00', 180);
+    VALUES (9, 1, TO_DATE('2026-09-05', 'YYYY-MM-DD'), INTERVAL '11:00' HOUR TO MINUTE, 180);
 INSERT INTO sessao (codigo_espetaculo, numero, data, horario, vagas_disponiveis)
-    VALUES (9, 2, TO_DATE('2026-09-05', 'YYYY-MM-DD'), '15:00', 150);
+    VALUES (9, 2, TO_DATE('2026-09-05', 'YYYY-MM-DD'), INTERVAL '15:00' HOUR TO MINUTE, 150);
 INSERT INTO sessao (codigo_espetaculo, numero, data, horario, vagas_disponiveis)
-    VALUES (9, 1, TO_DATE('2026-09-06', 'YYYY-MM-DD'), '11:00', 120);
+    VALUES (9, 1, TO_DATE('2026-09-06', 'YYYY-MM-DD'), INTERVAL '11:00' HOUR TO MINUTE, 120);
 INSERT INTO sessao (codigo_espetaculo, numero, data, horario, vagas_disponiveis)
-    VALUES (9, 1, TO_DATE('2026-09-12', 'YYYY-MM-DD'), '11:00', 160);
+    VALUES (9, 1, TO_DATE('2026-09-12', 'YYYY-MM-DD'), INTERVAL '11:00' HOUR TO MINUTE, 160);
 INSERT INTO sessao (codigo_espetaculo, numero, data, horario, vagas_disponiveis)
-    VALUES (9, 2, TO_DATE('2026-09-12', 'YYYY-MM-DD'), '15:00', 116);
+    VALUES (9, 2, TO_DATE('2026-09-12', 'YYYY-MM-DD'), INTERVAL '15:00' HOUR TO MINUTE, 116);
 INSERT INTO sessao (codigo_espetaculo, numero, data, horario, vagas_disponiveis)
-    VALUES (10, 1, TO_DATE('2026-09-05', 'YYYY-MM-DD'), '19:00', 88);
+    VALUES (10, 1, TO_DATE('2026-09-05', 'YYYY-MM-DD'), INTERVAL '19:00' HOUR TO MINUTE, 88);
 INSERT INTO sessao (codigo_espetaculo, numero, data, horario, vagas_disponiveis)
-    VALUES (10, 1, TO_DATE('2026-09-06', 'YYYY-MM-DD'), '19:00', 141);
+    VALUES (10, 1, TO_DATE('2026-09-06', 'YYYY-MM-DD'), INTERVAL '19:00' HOUR TO MINUTE, 141);
 INSERT INTO sessao (codigo_espetaculo, numero, data, horario, vagas_disponiveis)
-    VALUES (10, 1, TO_DATE('2026-09-13', 'YYYY-MM-DD'), '19:00', 150);
+    VALUES (10, 1, TO_DATE('2026-09-13', 'YYYY-MM-DD'), INTERVAL '19:00' HOUR TO MINUTE, 150);
 INSERT INTO sessao (codigo_espetaculo, numero, data, horario, vagas_disponiveis)
-    VALUES (11, 1, TO_DATE('2026-09-05', 'YYYY-MM-DD'), '14:00', 154);
+    VALUES (11, 1, TO_DATE('2026-09-05', 'YYYY-MM-DD'), INTERVAL '14:00' HOUR TO MINUTE, 154);
 INSERT INTO sessao (codigo_espetaculo, numero, data, horario, vagas_disponiveis)
-    VALUES (11, 2, TO_DATE('2026-09-05', 'YYYY-MM-DD'), '17:00', 254);
+    VALUES (11, 2, TO_DATE('2026-09-05', 'YYYY-MM-DD'), INTERVAL '17:00' HOUR TO MINUTE, 254);
 INSERT INTO sessao (codigo_espetaculo, numero, data, horario, vagas_disponiveis)
-    VALUES (11, 1, TO_DATE('2026-09-12', 'YYYY-MM-DD'), '14:00', 264);
+    VALUES (11, 1, TO_DATE('2026-09-12', 'YYYY-MM-DD'), INTERVAL '14:00' HOUR TO MINUTE, 264);
 INSERT INTO sessao (codigo_espetaculo, numero, data, horario, vagas_disponiveis)
-    VALUES (11, 1, TO_DATE('2026-09-19', 'YYYY-MM-DD'), '14:00', 165);
+    VALUES (11, 1, TO_DATE('2026-09-19', 'YYYY-MM-DD'), INTERVAL '14:00' HOUR TO MINUTE, 165);
 INSERT INTO sessao (codigo_espetaculo, numero, data, horario, vagas_disponiveis)
-    VALUES (12, 1, TO_DATE('2026-09-06', 'YYYY-MM-DD'), '20:00', 243);
+    VALUES (12, 1, TO_DATE('2026-09-06', 'YYYY-MM-DD'), INTERVAL '20:00' HOUR TO MINUTE, 243);
 INSERT INTO sessao (codigo_espetaculo, numero, data, horario, vagas_disponiveis)
-    VALUES (12, 1, TO_DATE('2026-09-13', 'YYYY-MM-DD'), '20:00', 211);
+    VALUES (12, 1, TO_DATE('2026-09-13', 'YYYY-MM-DD'), INTERVAL '20:00' HOUR TO MINUTE, 211);
 INSERT INTO sessao (codigo_espetaculo, numero, data, horario, vagas_disponiveis)
-    VALUES (12, 1, TO_DATE('2026-09-20', 'YYYY-MM-DD'), '20:00', 330);
+    VALUES (12, 1, TO_DATE('2026-09-20', 'YYYY-MM-DD'), INTERVAL '20:00' HOUR TO MINUTE, 330);
 INSERT INTO sessao (codigo_espetaculo, numero, data, horario, vagas_disponiveis)
-    VALUES (13, 1, TO_DATE('2026-09-06', 'YYYY-MM-DD'), '10:30', 70);
+    VALUES (13, 1, TO_DATE('2026-09-06', 'YYYY-MM-DD'), INTERVAL '10:30' HOUR TO MINUTE, 70);
 INSERT INTO sessao (codigo_espetaculo, numero, data, horario, vagas_disponiveis)
-    VALUES (13, 1, TO_DATE('2026-09-13', 'YYYY-MM-DD'), '10:30', 49);
+    VALUES (13, 1, TO_DATE('2026-09-13', 'YYYY-MM-DD'), INTERVAL '10:30' HOUR TO MINUTE, 49);
 INSERT INTO sessao (codigo_espetaculo, numero, data, horario, vagas_disponiveis)
-    VALUES (13, 2, TO_DATE('2026-09-13', 'YYYY-MM-DD'), '14:30', 47);
+    VALUES (13, 2, TO_DATE('2026-09-13', 'YYYY-MM-DD'), INTERVAL '14:30' HOUR TO MINUTE, 47);
 
 -- ---------------------------------------------------------------------
 -- REVISÃO (16) - 2 por brinquedo, todos os técnicos participam (código via seq_revisao)
 -- ---------------------------------------------------------------------
 -- revisão 1
 INSERT INTO revisao (codigo, data, horario, descricao, cpf_tecnico, codigo_brinquedo)
-    VALUES (seq_revisao.NEXTVAL, TO_DATE('2026-06-08', 'YYYY-MM-DD'), '08:00', 'Revisão do painel de comando e dos sensores de segurança', '78557830408', 1);
+    VALUES (seq_revisao.NEXTVAL, TO_DATE('2026-06-08', 'YYYY-MM-DD'), INTERVAL '08:00' HOUR TO MINUTE, 'Revisão do painel de comando e dos sensores de segurança', '78557830408', 1);
 -- revisão 2
 INSERT INTO revisao (codigo, data, horario, descricao, cpf_tecnico, codigo_brinquedo)
-    VALUES (seq_revisao.NEXTVAL, TO_DATE('2026-08-10', 'YYYY-MM-DD'), '08:00', 'Verificação de bombas, vedações e travas hidráulicas', '34019575118', 1);
+    VALUES (seq_revisao.NEXTVAL, TO_DATE('2026-08-10', 'YYYY-MM-DD'), INTERVAL '08:00' HOUR TO MINUTE, 'Verificação de bombas, vedações e travas hidráulicas', '34019575118', 1);
 -- revisão 3
 INSERT INTO revisao (codigo, data, horario, descricao, cpf_tecnico, codigo_brinquedo)
-    VALUES (seq_revisao.NEXTVAL, TO_DATE('2026-06-15', 'YYYY-MM-DD'), '07:30', 'Verificação de bombas, vedações e travas hidráulicas', '34019575118', 2);
+    VALUES (seq_revisao.NEXTVAL, TO_DATE('2026-06-15', 'YYYY-MM-DD'), INTERVAL '07:30' HOUR TO MINUTE, 'Verificação de bombas, vedações e travas hidráulicas', '34019575118', 2);
 -- revisão 4
 INSERT INTO revisao (codigo, data, horario, descricao, cpf_tecnico, codigo_brinquedo)
-    VALUES (seq_revisao.NEXTVAL, TO_DATE('2026-08-17', 'YYYY-MM-DD'), '07:00', 'Inspeção estrutural e reaperto de fixações', '47389777680', 2);
+    VALUES (seq_revisao.NEXTVAL, TO_DATE('2026-08-17', 'YYYY-MM-DD'), INTERVAL '07:00' HOUR TO MINUTE, 'Inspeção estrutural e reaperto de fixações', '47389777680', 2);
 -- revisão 5
 INSERT INTO revisao (codigo, data, horario, descricao, cpf_tecnico, codigo_brinquedo)
-    VALUES (seq_revisao.NEXTVAL, TO_DATE('2026-06-22', 'YYYY-MM-DD'), '07:00', 'Inspeção estrutural e reaperto de fixações', '47389777680', 3);
+    VALUES (seq_revisao.NEXTVAL, TO_DATE('2026-06-22', 'YYYY-MM-DD'), INTERVAL '07:00' HOUR TO MINUTE, 'Inspeção estrutural e reaperto de fixações', '47389777680', 3);
 -- revisão 6
 INSERT INTO revisao (codigo, data, horario, descricao, cpf_tecnico, codigo_brinquedo)
-    VALUES (seq_revisao.NEXTVAL, TO_DATE('2026-08-24', 'YYYY-MM-DD'), '08:00', 'Inspeção do sistema pneumático e das portas de acesso', '31631553160', 3);
+    VALUES (seq_revisao.NEXTVAL, TO_DATE('2026-08-24', 'YYYY-MM-DD'), INTERVAL '08:00' HOUR TO MINUTE, 'Inspeção do sistema pneumático e das portas de acesso', '31631553160', 3);
 -- revisão 7
 INSERT INTO revisao (codigo, data, horario, descricao, cpf_tecnico, codigo_brinquedo)
-    VALUES (seq_revisao.NEXTVAL, TO_DATE('2026-06-29', 'YYYY-MM-DD'), '08:00', 'Inspeção do sistema pneumático e das portas de acesso', '31631553160', 4);
+    VALUES (seq_revisao.NEXTVAL, TO_DATE('2026-06-29', 'YYYY-MM-DD'), INTERVAL '08:00' HOUR TO MINUTE, 'Inspeção do sistema pneumático e das portas de acesso', '31631553160', 4);
 -- revisão 8
 INSERT INTO revisao (codigo, data, horario, descricao, cpf_tecnico, codigo_brinquedo)
-    VALUES (seq_revisao.NEXTVAL, TO_DATE('2026-08-31', 'YYYY-MM-DD'), '08:00', 'Inspeção de rodas, trilhos e sistema de frenagem', '08289064594', 4);
+    VALUES (seq_revisao.NEXTVAL, TO_DATE('2026-08-31', 'YYYY-MM-DD'), INTERVAL '08:00' HOUR TO MINUTE, 'Inspeção de rodas, trilhos e sistema de frenagem', '08289064594', 4);
 -- revisão 9
 INSERT INTO revisao (codigo, data, horario, descricao, cpf_tecnico, codigo_brinquedo)
-    VALUES (seq_revisao.NEXTVAL, TO_DATE('2026-07-06', 'YYYY-MM-DD'), '06:30', 'Inspeção de rodas, trilhos e sistema de frenagem', '08289064594', 5);
+    VALUES (seq_revisao.NEXTVAL, TO_DATE('2026-07-06', 'YYYY-MM-DD'), INTERVAL '06:30' HOUR TO MINUTE, 'Inspeção de rodas, trilhos e sistema de frenagem', '08289064594', 5);
 -- revisão 10
 INSERT INTO revisao (codigo, data, horario, descricao, cpf_tecnico, codigo_brinquedo)
-    VALUES (seq_revisao.NEXTVAL, TO_DATE('2026-09-07', 'YYYY-MM-DD'), '07:30', 'Revisão do painel de comando e dos sensores de segurança', '78557830408', 5);
+    VALUES (seq_revisao.NEXTVAL, TO_DATE('2026-09-07', 'YYYY-MM-DD'), INTERVAL '07:30' HOUR TO MINUTE, 'Revisão do painel de comando e dos sensores de segurança', '78557830408', 5);
 -- revisão 11
 INSERT INTO revisao (codigo, data, horario, descricao, cpf_tecnico, codigo_brinquedo)
-    VALUES (seq_revisao.NEXTVAL, TO_DATE('2026-07-13', 'YYYY-MM-DD'), '08:00', 'Revisão do painel de comando e dos sensores de segurança', '78557830408', 6);
+    VALUES (seq_revisao.NEXTVAL, TO_DATE('2026-07-13', 'YYYY-MM-DD'), INTERVAL '08:00' HOUR TO MINUTE, 'Revisão do painel de comando e dos sensores de segurança', '78557830408', 6);
 -- revisão 12
 INSERT INTO revisao (codigo, data, horario, descricao, cpf_tecnico, codigo_brinquedo)
-    VALUES (seq_revisao.NEXTVAL, TO_DATE('2026-09-14', 'YYYY-MM-DD'), '06:30', 'Verificação de bombas, vedações e travas hidráulicas', '34019575118', 6);
+    VALUES (seq_revisao.NEXTVAL, TO_DATE('2026-09-14', 'YYYY-MM-DD'), INTERVAL '06:30' HOUR TO MINUTE, 'Verificação de bombas, vedações e travas hidráulicas', '34019575118', 6);
 -- revisão 13
 INSERT INTO revisao (codigo, data, horario, descricao, cpf_tecnico, codigo_brinquedo)
-    VALUES (seq_revisao.NEXTVAL, TO_DATE('2026-07-20', 'YYYY-MM-DD'), '06:30', 'Verificação de bombas, vedações e travas hidráulicas', '34019575118', 7);
+    VALUES (seq_revisao.NEXTVAL, TO_DATE('2026-07-20', 'YYYY-MM-DD'), INTERVAL '06:30' HOUR TO MINUTE, 'Verificação de bombas, vedações e travas hidráulicas', '34019575118', 7);
 -- revisão 14
 INSERT INTO revisao (codigo, data, horario, descricao, cpf_tecnico, codigo_brinquedo)
-    VALUES (seq_revisao.NEXTVAL, TO_DATE('2026-09-01', 'YYYY-MM-DD'), '06:30', 'Inspeção estrutural e reaperto de fixações', '47389777680', 7);
+    VALUES (seq_revisao.NEXTVAL, TO_DATE('2026-09-01', 'YYYY-MM-DD'), INTERVAL '06:30' HOUR TO MINUTE, 'Inspeção estrutural e reaperto de fixações', '47389777680', 7);
 -- revisão 15
 INSERT INTO revisao (codigo, data, horario, descricao, cpf_tecnico, codigo_brinquedo)
-    VALUES (seq_revisao.NEXTVAL, TO_DATE('2026-07-27', 'YYYY-MM-DD'), '06:30', 'Inspeção estrutural e reaperto de fixações', '47389777680', 8);
+    VALUES (seq_revisao.NEXTVAL, TO_DATE('2026-07-27', 'YYYY-MM-DD'), INTERVAL '06:30' HOUR TO MINUTE, 'Inspeção estrutural e reaperto de fixações', '47389777680', 8);
 -- revisão 16
 INSERT INTO revisao (codigo, data, horario, descricao, cpf_tecnico, codigo_brinquedo)
-    VALUES (seq_revisao.NEXTVAL, TO_DATE('2026-09-08', 'YYYY-MM-DD'), '08:00', 'Inspeção do sistema pneumático e das portas de acesso', '31631553160', 8);
+    VALUES (seq_revisao.NEXTVAL, TO_DATE('2026-09-08', 'YYYY-MM-DD'), INTERVAL '08:00' HOUR TO MINUTE, 'Inspeção do sistema pneumático e das portas de acesso', '31631553160', 8);
 
 -- ---------------------------------------------------------------------
 -- USA - peças por revisão. As revisões 3, 8 e 14 são de rotina, sem troca de peças.
@@ -824,140 +826,140 @@ INSERT INTO mentora (cpf_mentor, cpf_mentorado)
 -- FREQUENTA (68) - cliente em dia de ingresso; operador sempre de um brinquedo que opera
 -- ---------------------------------------------------------------------
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('97565733334', TO_DATE('2026-09-05', 'YYYY-MM-DD'), '09:40', '18427896867');
+    VALUES ('97565733334', TO_DATE('2026-09-05', 'YYYY-MM-DD'), INTERVAL '09:40' HOUR TO MINUTE, '18427896867');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('97565733334', TO_DATE('2026-09-05', 'YYYY-MM-DD'), '10:15', '75658024099');
+    VALUES ('97565733334', TO_DATE('2026-09-05', 'YYYY-MM-DD'), INTERVAL '10:15' HOUR TO MINUTE, '75658024099');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('97565733334', TO_DATE('2026-09-05', 'YYYY-MM-DD'), '16:45', '18427896867');
+    VALUES ('97565733334', TO_DATE('2026-09-05', 'YYYY-MM-DD'), INTERVAL '16:45' HOUR TO MINUTE, '18427896867');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('62279786710', TO_DATE('2026-09-05', 'YYYY-MM-DD'), '15:10', '08469019350');
+    VALUES ('62279786710', TO_DATE('2026-09-05', 'YYYY-MM-DD'), INTERVAL '15:10' HOUR TO MINUTE, '08469019350');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('62279786710', TO_DATE('2026-09-05', 'YYYY-MM-DD'), '16:45', '89597373564');
+    VALUES ('62279786710', TO_DATE('2026-09-05', 'YYYY-MM-DD'), INTERVAL '16:45' HOUR TO MINUTE, '89597373564');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('62279786710', TO_DATE('2026-09-05', 'YYYY-MM-DD'), '17:30', '08469019350');
+    VALUES ('62279786710', TO_DATE('2026-09-05', 'YYYY-MM-DD'), INTERVAL '17:30' HOUR TO MINUTE, '08469019350');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('13393065815', TO_DATE('2026-09-05', 'YYYY-MM-DD'), '13:45', '27200463612');
+    VALUES ('13393065815', TO_DATE('2026-09-05', 'YYYY-MM-DD'), INTERVAL '13:45' HOUR TO MINUTE, '27200463612');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('13393065815', TO_DATE('2026-09-05', 'YYYY-MM-DD'), '16:00', '74082869697');
+    VALUES ('13393065815', TO_DATE('2026-09-05', 'YYYY-MM-DD'), INTERVAL '16:00' HOUR TO MINUTE, '74082869697');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('13393065815', TO_DATE('2026-09-05', 'YYYY-MM-DD'), '16:45', '75658024099');
+    VALUES ('13393065815', TO_DATE('2026-09-05', 'YYYY-MM-DD'), INTERVAL '16:45' HOUR TO MINUTE, '75658024099');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('94571710550', TO_DATE('2026-09-05', 'YYYY-MM-DD'), '12:30', '18427896867');
+    VALUES ('94571710550', TO_DATE('2026-09-05', 'YYYY-MM-DD'), INTERVAL '12:30' HOUR TO MINUTE, '18427896867');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('94571710550', TO_DATE('2026-09-05', 'YYYY-MM-DD'), '14:20', '27200463612');
+    VALUES ('94571710550', TO_DATE('2026-09-05', 'YYYY-MM-DD'), INTERVAL '14:20' HOUR TO MINUTE, '27200463612');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('81816089419', TO_DATE('2026-09-06', 'YYYY-MM-DD'), '09:40', '66572706583');
+    VALUES ('81816089419', TO_DATE('2026-09-06', 'YYYY-MM-DD'), INTERVAL '09:40' HOUR TO MINUTE, '66572706583');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('81816089419', TO_DATE('2026-09-06', 'YYYY-MM-DD'), '11:00', '27200463612');
+    VALUES ('81816089419', TO_DATE('2026-09-06', 'YYYY-MM-DD'), INTERVAL '11:00' HOUR TO MINUTE, '27200463612');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('81816089419', TO_DATE('2026-09-06', 'YYYY-MM-DD'), '13:45', '27200463612');
+    VALUES ('81816089419', TO_DATE('2026-09-06', 'YYYY-MM-DD'), INTERVAL '13:45' HOUR TO MINUTE, '27200463612');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('28028765467', TO_DATE('2026-09-06', 'YYYY-MM-DD'), '10:15', '14931820999');
+    VALUES ('28028765467', TO_DATE('2026-09-06', 'YYYY-MM-DD'), INTERVAL '10:15' HOUR TO MINUTE, '14931820999');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('28028765467', TO_DATE('2026-09-06', 'YYYY-MM-DD'), '14:20', '27200463612');
+    VALUES ('28028765467', TO_DATE('2026-09-06', 'YYYY-MM-DD'), INTERVAL '14:20' HOUR TO MINUTE, '27200463612');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('50154817139', TO_DATE('2026-09-06', 'YYYY-MM-DD'), '10:15', '80451081340');
+    VALUES ('50154817139', TO_DATE('2026-09-06', 'YYYY-MM-DD'), INTERVAL '10:15' HOUR TO MINUTE, '80451081340');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('50154817139', TO_DATE('2026-09-06', 'YYYY-MM-DD'), '11:00', '75658024099');
+    VALUES ('50154817139', TO_DATE('2026-09-06', 'YYYY-MM-DD'), INTERVAL '11:00' HOUR TO MINUTE, '75658024099');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('50154817139', TO_DATE('2026-09-06', 'YYYY-MM-DD'), '15:10', '75658024099');
+    VALUES ('50154817139', TO_DATE('2026-09-06', 'YYYY-MM-DD'), INTERVAL '15:10' HOUR TO MINUTE, '75658024099');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('06537026555', TO_DATE('2026-09-06', 'YYYY-MM-DD'), '12:30', '18427896867');
+    VALUES ('06537026555', TO_DATE('2026-09-06', 'YYYY-MM-DD'), INTERVAL '12:30' HOUR TO MINUTE, '18427896867');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('06537026555', TO_DATE('2026-09-06', 'YYYY-MM-DD'), '13:45', '18427896867');
+    VALUES ('06537026555', TO_DATE('2026-09-06', 'YYYY-MM-DD'), INTERVAL '13:45' HOUR TO MINUTE, '18427896867');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('97565733334', TO_DATE('2026-09-12', 'YYYY-MM-DD'), '12:30', '74082869697');
+    VALUES ('97565733334', TO_DATE('2026-09-12', 'YYYY-MM-DD'), INTERVAL '12:30' HOUR TO MINUTE, '74082869697');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('97565733334', TO_DATE('2026-09-12', 'YYYY-MM-DD'), '17:30', '18427896867');
+    VALUES ('97565733334', TO_DATE('2026-09-12', 'YYYY-MM-DD'), INTERVAL '17:30' HOUR TO MINUTE, '18427896867');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('70257605878', TO_DATE('2026-09-12', 'YYYY-MM-DD'), '12:30', '18427896867');
+    VALUES ('70257605878', TO_DATE('2026-09-12', 'YYYY-MM-DD'), INTERVAL '12:30' HOUR TO MINUTE, '18427896867');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('70257605878', TO_DATE('2026-09-12', 'YYYY-MM-DD'), '17:30', '08469019350');
+    VALUES ('70257605878', TO_DATE('2026-09-12', 'YYYY-MM-DD'), INTERVAL '17:30' HOUR TO MINUTE, '08469019350');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('13393065815', TO_DATE('2026-09-12', 'YYYY-MM-DD'), '13:45', '31073946100');
+    VALUES ('13393065815', TO_DATE('2026-09-12', 'YYYY-MM-DD'), INTERVAL '13:45' HOUR TO MINUTE, '31073946100');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('13393065815', TO_DATE('2026-09-12', 'YYYY-MM-DD'), '16:45', '18427896867');
+    VALUES ('13393065815', TO_DATE('2026-09-12', 'YYYY-MM-DD'), INTERVAL '16:45' HOUR TO MINUTE, '18427896867');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('13393065815', TO_DATE('2026-09-12', 'YYYY-MM-DD'), '17:30', '08469019350');
+    VALUES ('13393065815', TO_DATE('2026-09-12', 'YYYY-MM-DD'), INTERVAL '17:30' HOUR TO MINUTE, '08469019350');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('37413521016', TO_DATE('2026-09-12', 'YYYY-MM-DD'), '13:45', '08469019350');
+    VALUES ('37413521016', TO_DATE('2026-09-12', 'YYYY-MM-DD'), INTERVAL '13:45' HOUR TO MINUTE, '08469019350');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('37413521016', TO_DATE('2026-09-12', 'YYYY-MM-DD'), '16:45', '08469019350');
+    VALUES ('37413521016', TO_DATE('2026-09-12', 'YYYY-MM-DD'), INTERVAL '16:45' HOUR TO MINUTE, '08469019350');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('81816089419', TO_DATE('2026-09-13', 'YYYY-MM-DD'), '15:10', '27200463612');
+    VALUES ('81816089419', TO_DATE('2026-09-13', 'YYYY-MM-DD'), INTERVAL '15:10' HOUR TO MINUTE, '27200463612');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('81816089419', TO_DATE('2026-09-13', 'YYYY-MM-DD'), '17:30', '18427896867');
+    VALUES ('81816089419', TO_DATE('2026-09-13', 'YYYY-MM-DD'), INTERVAL '17:30' HOUR TO MINUTE, '18427896867');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('28911860107', TO_DATE('2026-09-13', 'YYYY-MM-DD'), '09:40', '89597373564');
+    VALUES ('28911860107', TO_DATE('2026-09-13', 'YYYY-MM-DD'), INTERVAL '09:40' HOUR TO MINUTE, '89597373564');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('28911860107', TO_DATE('2026-09-13', 'YYYY-MM-DD'), '13:45', '08469019350');
+    VALUES ('28911860107', TO_DATE('2026-09-13', 'YYYY-MM-DD'), INTERVAL '13:45' HOUR TO MINUTE, '08469019350');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('50154817139', TO_DATE('2026-09-13', 'YYYY-MM-DD'), '10:15', '66572706583');
+    VALUES ('50154817139', TO_DATE('2026-09-13', 'YYYY-MM-DD'), INTERVAL '10:15' HOUR TO MINUTE, '66572706583');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('50154817139', TO_DATE('2026-09-13', 'YYYY-MM-DD'), '14:20', '14931820999');
+    VALUES ('50154817139', TO_DATE('2026-09-13', 'YYYY-MM-DD'), INTERVAL '14:20' HOUR TO MINUTE, '14931820999');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('50154817139', TO_DATE('2026-09-13', 'YYYY-MM-DD'), '15:10', '31073946100');
+    VALUES ('50154817139', TO_DATE('2026-09-13', 'YYYY-MM-DD'), INTERVAL '15:10' HOUR TO MINUTE, '31073946100');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('50154817139', TO_DATE('2026-09-13', 'YYYY-MM-DD'), '16:45', '27200463612');
+    VALUES ('50154817139', TO_DATE('2026-09-13', 'YYYY-MM-DD'), INTERVAL '16:45' HOUR TO MINUTE, '27200463612');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('47202606674', TO_DATE('2026-09-13', 'YYYY-MM-DD'), '11:00', '14931820999');
+    VALUES ('47202606674', TO_DATE('2026-09-13', 'YYYY-MM-DD'), INTERVAL '11:00' HOUR TO MINUTE, '14931820999');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('47202606674', TO_DATE('2026-09-13', 'YYYY-MM-DD'), '14:20', '18427896867');
+    VALUES ('47202606674', TO_DATE('2026-09-13', 'YYYY-MM-DD'), INTERVAL '14:20' HOUR TO MINUTE, '18427896867');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('47202606674', TO_DATE('2026-09-13', 'YYYY-MM-DD'), '17:30', '75658024099');
+    VALUES ('47202606674', TO_DATE('2026-09-13', 'YYYY-MM-DD'), INTERVAL '17:30' HOUR TO MINUTE, '75658024099');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('70257605878', TO_DATE('2026-09-19', 'YYYY-MM-DD'), '11:00', '18427896867');
+    VALUES ('70257605878', TO_DATE('2026-09-19', 'YYYY-MM-DD'), INTERVAL '11:00' HOUR TO MINUTE, '18427896867');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('70257605878', TO_DATE('2026-09-19', 'YYYY-MM-DD'), '13:45', '75658024099');
+    VALUES ('70257605878', TO_DATE('2026-09-19', 'YYYY-MM-DD'), INTERVAL '13:45' HOUR TO MINUTE, '75658024099');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('70257605878', TO_DATE('2026-09-19', 'YYYY-MM-DD'), '16:00', '18427896867');
+    VALUES ('70257605878', TO_DATE('2026-09-19', 'YYYY-MM-DD'), INTERVAL '16:00' HOUR TO MINUTE, '18427896867');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('62279786710', TO_DATE('2026-09-19', 'YYYY-MM-DD'), '10:15', '66572706583');
+    VALUES ('62279786710', TO_DATE('2026-09-19', 'YYYY-MM-DD'), INTERVAL '10:15' HOUR TO MINUTE, '66572706583');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('62279786710', TO_DATE('2026-09-19', 'YYYY-MM-DD'), '15:10', '31073946100');
+    VALUES ('62279786710', TO_DATE('2026-09-19', 'YYYY-MM-DD'), INTERVAL '15:10' HOUR TO MINUTE, '31073946100');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('62279786710', TO_DATE('2026-09-19', 'YYYY-MM-DD'), '16:00', '75658024099');
+    VALUES ('62279786710', TO_DATE('2026-09-19', 'YYYY-MM-DD'), INTERVAL '16:00' HOUR TO MINUTE, '75658024099');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('37413521016', TO_DATE('2026-09-19', 'YYYY-MM-DD'), '13:45', '14931820999');
+    VALUES ('37413521016', TO_DATE('2026-09-19', 'YYYY-MM-DD'), INTERVAL '13:45' HOUR TO MINUTE, '14931820999');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('37413521016', TO_DATE('2026-09-19', 'YYYY-MM-DD'), '14:20', '14931820999');
+    VALUES ('37413521016', TO_DATE('2026-09-19', 'YYYY-MM-DD'), INTERVAL '14:20' HOUR TO MINUTE, '14931820999');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('37413521016', TO_DATE('2026-09-19', 'YYYY-MM-DD'), '16:00', '89597373564');
+    VALUES ('37413521016', TO_DATE('2026-09-19', 'YYYY-MM-DD'), INTERVAL '16:00' HOUR TO MINUTE, '89597373564');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('37413521016', TO_DATE('2026-09-19', 'YYYY-MM-DD'), '16:45', '14931820999');
+    VALUES ('37413521016', TO_DATE('2026-09-19', 'YYYY-MM-DD'), INTERVAL '16:45' HOUR TO MINUTE, '14931820999');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('94571710550', TO_DATE('2026-09-19', 'YYYY-MM-DD'), '11:00', '14931820999');
+    VALUES ('94571710550', TO_DATE('2026-09-19', 'YYYY-MM-DD'), INTERVAL '11:00' HOUR TO MINUTE, '14931820999');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('94571710550', TO_DATE('2026-09-19', 'YYYY-MM-DD'), '13:45', '31073946100');
+    VALUES ('94571710550', TO_DATE('2026-09-19', 'YYYY-MM-DD'), INTERVAL '13:45' HOUR TO MINUTE, '31073946100');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('94571710550', TO_DATE('2026-09-19', 'YYYY-MM-DD'), '14:20', '27200463612');
+    VALUES ('94571710550', TO_DATE('2026-09-19', 'YYYY-MM-DD'), INTERVAL '14:20' HOUR TO MINUTE, '27200463612');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('28911860107', TO_DATE('2026-09-20', 'YYYY-MM-DD'), '09:40', '14931820999');
+    VALUES ('28911860107', TO_DATE('2026-09-20', 'YYYY-MM-DD'), INTERVAL '09:40' HOUR TO MINUTE, '14931820999');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('28911860107', TO_DATE('2026-09-20', 'YYYY-MM-DD'), '11:00', '27200463612');
+    VALUES ('28911860107', TO_DATE('2026-09-20', 'YYYY-MM-DD'), INTERVAL '11:00' HOUR TO MINUTE, '27200463612');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('28911860107', TO_DATE('2026-09-20', 'YYYY-MM-DD'), '13:45', '14931820999');
+    VALUES ('28911860107', TO_DATE('2026-09-20', 'YYYY-MM-DD'), INTERVAL '13:45' HOUR TO MINUTE, '14931820999');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('28911860107', TO_DATE('2026-09-20', 'YYYY-MM-DD'), '17:30', '14931820999');
+    VALUES ('28911860107', TO_DATE('2026-09-20', 'YYYY-MM-DD'), INTERVAL '17:30' HOUR TO MINUTE, '14931820999');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('28028765467', TO_DATE('2026-09-20', 'YYYY-MM-DD'), '09:40', '89597373564');
+    VALUES ('28028765467', TO_DATE('2026-09-20', 'YYYY-MM-DD'), INTERVAL '09:40' HOUR TO MINUTE, '89597373564');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('28028765467', TO_DATE('2026-09-20', 'YYYY-MM-DD'), '11:00', '31073946100');
+    VALUES ('28028765467', TO_DATE('2026-09-20', 'YYYY-MM-DD'), INTERVAL '11:00' HOUR TO MINUTE, '31073946100');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('28028765467', TO_DATE('2026-09-20', 'YYYY-MM-DD'), '17:30', '80451081340');
+    VALUES ('28028765467', TO_DATE('2026-09-20', 'YYYY-MM-DD'), INTERVAL '17:30' HOUR TO MINUTE, '80451081340');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('47202606674', TO_DATE('2026-09-20', 'YYYY-MM-DD'), '10:15', '80451081340');
+    VALUES ('47202606674', TO_DATE('2026-09-20', 'YYYY-MM-DD'), INTERVAL '10:15' HOUR TO MINUTE, '80451081340');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('47202606674', TO_DATE('2026-09-20', 'YYYY-MM-DD'), '12:30', '18427896867');
+    VALUES ('47202606674', TO_DATE('2026-09-20', 'YYYY-MM-DD'), INTERVAL '12:30' HOUR TO MINUTE, '18427896867');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('47202606674', TO_DATE('2026-09-20', 'YYYY-MM-DD'), '13:45', '75658024099');
+    VALUES ('47202606674', TO_DATE('2026-09-20', 'YYYY-MM-DD'), INTERVAL '13:45' HOUR TO MINUTE, '75658024099');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('06537026555', TO_DATE('2026-09-20', 'YYYY-MM-DD'), '09:40', '89597373564');
+    VALUES ('06537026555', TO_DATE('2026-09-20', 'YYYY-MM-DD'), INTERVAL '09:40' HOUR TO MINUTE, '89597373564');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('06537026555', TO_DATE('2026-09-20', 'YYYY-MM-DD'), '10:15', '66572706583');
+    VALUES ('06537026555', TO_DATE('2026-09-20', 'YYYY-MM-DD'), INTERVAL '10:15' HOUR TO MINUTE, '66572706583');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('06537026555', TO_DATE('2026-09-20', 'YYYY-MM-DD'), '12:30', '74082869697');
+    VALUES ('06537026555', TO_DATE('2026-09-20', 'YYYY-MM-DD'), INTERVAL '12:30' HOUR TO MINUTE, '74082869697');
 INSERT INTO frequenta (cpf_cliente, data, horario_visita, cpf_operador)
-    VALUES ('06537026555', TO_DATE('2026-09-20', 'YYYY-MM-DD'), '15:10', '75658024099');
+    VALUES ('06537026555', TO_DATE('2026-09-20', 'YYYY-MM-DD'), INTERVAL '15:10' HOUR TO MINUTE, '75658024099');
 
 COMMIT;

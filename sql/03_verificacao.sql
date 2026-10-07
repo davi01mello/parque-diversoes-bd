@@ -1,5 +1,5 @@
 -- =====================================================================
--- 05_verificacao.sql
+-- 03_verificacao.sql
 -- Projeto: Parque de Diversões (AV3 - Criação e Povoamento)
 -- Consultas de conferência (opcional): mostram que o povoamento exercita
 -- as regras do minimundo. Todas usam SQL padrão, sem recursos de um SGBD só.
