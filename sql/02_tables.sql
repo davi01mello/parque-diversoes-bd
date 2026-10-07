@@ -19,7 +19,7 @@
 
 CREATE TABLE area (
     nome        VARCHAR2(40)  NOT NULL,
-    tema        VARCHAR2(60)  NOT NULL,
+    tema        VARCHAR2(60)  NOT NULL, -- Tamanho muito grande?
     tamanho_m2  NUMBER(8)     NOT NULL,
     CONSTRAINT pk_area         PRIMARY KEY (nome),
     CONSTRAINT ck_area_tamanho CHECK (tamanho_m2 > 0)
@@ -27,13 +27,13 @@ CREATE TABLE area (
 
 CREATE TABLE funcionario (
     cpf              VARCHAR2(11)  NOT NULL,
-    primeiro_nome    VARCHAR2(40)  NOT NULL,
+    primeiro_nome    VARCHAR2(40)  NOT NULL, -- Tamanho muito grande?
     sobrenome        VARCHAR2(60)  NOT NULL,
     data_nascimento  DATE          NOT NULL,
     data_admissao    DATE          NOT NULL,
     salario          NUMBER(10,2)  NOT NULL,
     CONSTRAINT pk_funcionario        PRIMARY KEY (cpf),
-    CONSTRAINT ck_func_cpf           CHECK (REGEXP_LIKE(cpf, '^[0-9]{11}$')),
+    CONSTRAINT ck_func_cpf           CHECK (REGEXP_LIKE(cpf, '^[0-9]{11}$')), -- Checar digito verificador - talvez seja muito complexo
     CONSTRAINT ck_func_salario       CHECK (salario > 0),
     -- admitido com pelo menos 18 anos completos (216 meses)
     CONSTRAINT ck_func_admissao      CHECK (ADD_MONTHS(data_nascimento, 216) <= data_admissao)
@@ -122,7 +122,7 @@ CREATE TABLE artista (
 CREATE TABLE brinquedo (
     codigo            NUMBER(6)     NOT NULL,
     restricao_altura  NUMBER(3)     NOT NULL,   -- em cm; 0 = sem restrição
-    velocidade_maxima NUMBER(5,1)   NOT NULL,   -- em km/h
+    velocidade_maxima NUMBER(5,1)   NOT NULL,   -- em km/h -> Acho que poderia aceitar NULL
     categoria         VARCHAR2(10)  NOT NULL,
     cpf_gerente       VARCHAR2(11),             -- Gerencia (0,1): nulo = sem gerente
     CONSTRAINT pk_brinquedo            PRIMARY KEY (codigo),
