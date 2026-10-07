@@ -14,23 +14,23 @@ bd/
 ├── README.md
 └── sql/
     ├── 00_drop.sql                 remove tabelas e sequences (para reexecutar do zero)
-    ├── 01_sequences.sql            CREATE SEQUENCE (4)
-    ├── 02_tables.sql               CREATE TABLE (23), com CONSTRAINT e CHECK
+    ├── 01_sequences.sql            CREATE SEQUENCE
+    ├── 02_tables.sql               CREATE TABLE, com CONSTRAINT e CHECK
     ├── 03_alter_constraints.sql    FK circular entre OPERADOR e BRINQUEDO
     ├── 04_populate.sql             INSERT INTO (povoamento)
-    └── 05_verificacao.sql          consultas de conferência (opcional)
+    └── 05_verificacao.sql          consultas de verificação
 ```
 
 ## Como executar (Oracle Live SQL)
 
 Executar **nesta ordem**, cada arquivo como um script completo:
 
-1. `00_drop.sql` — só se for reexecutar. Na primeira vez, os erros ORA-00942 / ORA-02289 são esperados.
+1. `00_drop.sql` *Apenas em caso de nova execução.
 2. `01_sequences.sql`
 3. `02_tables.sql`
 4. `03_alter_constraints.sql`
 5. `04_populate.sql`
-6. `05_verificacao.sql` — opcional
+6. `05_verificacao.sql`
 
 O `04_populate.sql` depende das sequences começarem em 1 (os códigos de atração, peça e revisão usados
 nas chaves estrangeiras são os gerados em sequência). Por isso o `00_drop.sql` antes de reexecutar.
@@ -69,11 +69,10 @@ do Oracle sempre carrega data e hora.
 `cpf_operador`, e o operador determina o brinquedo, ou seja, `(cpf_cliente, data, horario_visita) → cpf_operador →
 codigo_brinquedo` (correção da AV2: `cpf_cliente` sozinho não determina o operador).
 
-**Nomes das colunas.** Seguem o esquema da AV2, inclusive `usa.quantidade_de_pecas` e
-`reserva.quantidade_de_reservas`.
+**Nomes das colunas.** Seguem o esquema da AV2
 
 **Campos opcionais (nulos).** `operador.codigo_brinquedo_opera` (operador sem brinquedo), `brinquedo.cpf_gerente`
-(brinquedo sem gerente) e `trabalha_em.data_fim` (alocação atual).
+(brinquedo sem gerente) e `trabalha_em.data_fim` (alocação atual). *Caso altere velocidade_maxima, lembrar de atualizar aqui
 
 **Principais `CHECK`s.** CPF com 11 dígitos, CEP com 8, e-mail e telefone em formato válido; salário e
 capacidades positivos; funcionário admitido com 18 anos ou mais; categorias de brinquedo
