@@ -1,18 +1,6 @@
 -- =====================================================================
 -- 05_av4_plsql.sql
--- Projeto: Parque de Diversões (AV4 - PL/SQL)
--- Disciplina: Banco de Dados (IF685) - CIn/UFPE
---
--- Equipe: Samuel de Almeida Farias Nascimento
---         Davi de Souza Mello
---         Maria Cláudia Silva Rocha
---         Pedro Wellington Ferreira Felizola Lucena
---         Guilherme Calistrato Nunes
---
--- PRÉ-REQUISITO (nesta ordem, no Oracle Live SQL):
---   01_ddl.sql -> 02_povoamento.sql -> 04_av4_consultas.sql -> ESTE arquivo
--- (o ALTER TABLE de 04 cria colunas que não existem antes dele).
---
+
 -- Organização (tag [PL n] = item do checklist de PL da AV4):
 --   Parte 1  Infraestrutura: tabela/sequence de log
 --   Parte 2  Subprogramas standalone: FUNCTION e PROCEDURE
