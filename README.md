@@ -126,3 +126,16 @@ Coerência entre tabelas:
   atendidas por um operador que de fato opera aquele brinquedo.
 - Reservas nunca excedem os ingressos do cliente naquele dia, e vagas disponíveis + reservas nunca excedem a
   capacidade da plateia.
+
+## AV4 - Consultas e PL/SQL
+
+Arquivos novos (checklist completo, item por item, em [CHECKLIST_AV4.md](CHECKLIST_AV4.md)):
+
+| Arquivo | Conteúdo |
+|---------|----------|
+| `sql/04_av4_consultas.sql` | 26 itens de SQL: ALTER, índices, INSERT/UPDATE/DELETE, 22 consultas, 2 views, GRANT/REVOKE (comentado) |
+| `sql/05_av4_plsql.sql` | 20 itens de PL/SQL: função, procedure, pacote `pkg_parque`, 3 triggers, 5 blocos de demonstração |
+
+Ordem de execução no Oracle Live SQL: `01_ddl.sql` -> `02_povoamento.sql` -> `04_av4_consultas.sql` -> `05_av4_plsql.sql`.
+O `ALTER TABLE` do 04 só roda uma vez; para repetir, rode o 01 e o 02 de novo. Os blocos de demonstração do 05
+terminam em `ROLLBACK`. GRANT/REVOKE não executa no Live SQL, por isso fica comentado e explicado.
